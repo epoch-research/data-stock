@@ -1,0 +1,23 @@
+number_of_images_in_hour_of_youtube_video = 3600
+pct_of_hours_that_contain_useful_images = 0.1 to 0.5
+number_of_hours_uploaded_per_minute = 500 to 800
+
+number_of_images_youtube_2022 = (number_of_hours_uploaded_per_minute*
+    60*24*365*
+    number_of_images_in_hour_of_youtube_video*
+    pct_of_hours_that_contain_useful_images
+)
+
+number_of_photos_shared_in_social_media_per_day = 5B to 20B
+average_times_a_unique_picture_is_shared = 5 to 15
+number_of_images_social_media_2022 = number_of_photos_shared_in_social_media_per_day * 365 / average_times_a_unique_picture_is_shared
+
+number_of_images_2022 = PointSet.fromDist(number_of_images_youtube_2022 + number_of_images_social_media_2022)
+
+total_population_years(t) = utils.numintegral(utils.internet_pop_normalized_2022, 1950, t, 1)
+
+stock_of_images(t) = (utils.psLog(number_of_images_2022, 100) + log(total_population_years(t)))*(1/Math.ln10)
+
+{
+    stock_popular_platforms: stock_of_images
+}

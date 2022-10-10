@@ -1,0 +1,68 @@
+// #########################################################################
+//  Popular platforms
+// #########################################################################
+
+/*
+This is an old figure from a few years ago that YouTube published in their blog.
+Can also be found on Statista. Plausibly higher nowadays, maybe up to 800h
+*/
+number_of_hours_uploaded_to_youtube_per_minute = 500
+
+/*
+Most YouTube content creators upload vlogs, commentary, education, fiction and such, which are usually speech-heavy.
+On the other hand, YouTube also has a good deal of music videos, camera feeds, etc.
+*/
+percentage_of_hours_containing_speech = 0.05 to 0.5
+
+average_words_per_hour = 150*60
+
+words_uploaded_to_youtube_2022 =
+    number_of_hours_uploaded_to_youtube_per_minute *
+    percentage_of_hours_containing_speech *
+    average_words_per_hour * 60*24*365
+
+
+// source: https://www.internetlivestats.com/twitter-statistics/. Outdated, could be a bit higher today 
+number_of_daily_tweets = 500M
+
+// Just a guess. 280 characters don't allow for much more than 50 words
+average_tweet_length = 10 to 50
+
+words_uploaded_to_twitter_2022 = number_of_daily_tweets * 365 * average_tweet_length
+
+
+/*
+The number 7.5M is repeated over the internet, seems reasonable.
+An example source: https://www.websiterating.com/research/internet-statistics-facts/#chapter-3
+*/
+daily_published_blog_posts = 5M to 10M
+
+/*
+CommonCrawl documents have around this length, this can be seen in the 'Mean Document Size' column on Table 1
+of the The Pile paper. It's also easy to find claims on the internet that the optimal blog post size to get
+more engagement is ~1000 words
+*/
+average_blog_post_length = 200 to 2000
+
+words_published_in_blogs_2022 = daily_published_blog_posts * average_blog_post_length
+
+
+twitter_youtube_and_blogs_share_of_internet = 0.05 to 0.4
+
+
+words_uploaded_to_popular_platforms_2022 = 
+    (
+        words_published_in_blogs_2022 +
+        words_uploaded_to_twitter_2022 +
+        words_uploaded_to_youtube_2022
+    ) /
+    twitter_youtube_and_blogs_share_of_internet
+
+
+total_population_years(t) = utils.numintegral(utils.internet_pop_normalized_2022, 1950, t, 1)
+
+stock_log(t) = (utils.psLog(words_uploaded_to_popular_platforms_2022,100) + log(total_population_years(t)))*(1/Math.ln10)
+
+{
+    stock_popular_platforms: stock_log
+}

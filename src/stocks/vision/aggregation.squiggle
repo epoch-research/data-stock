@@ -1,0 +1,22 @@
+// #########################################################################
+// Aggregation
+// #########################################################################
+
+popular_platforms_weight = 0.7
+external_estimate_weight = 0.3
+
+#stock_of_imgs_point(t,x) = (
+#    stock_popular_platforms(t)*x*popular_platforms_weight +
+#    stock_external_estimate(t)*(1-x)*external_estimate_weight
+#    ) / (x*popular_platforms_weight +
+#        (1-x)*external_estimate_weight)
+#
+#stock_of_imgs(t) = stock_of_imgs_cur(t,
+#    SampleSet.fromDist(uniform(0,1))
+#    )
+
+stock_of_imgs(t) = utils.unifmix(stock_external_estimate(t)-0.2, stock_popular_platforms(t)+0.4, 100)
+
+{
+    stock_of_data: stock_of_imgs
+}

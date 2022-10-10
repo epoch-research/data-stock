@@ -1,0 +1,18 @@
+// #########################################################################
+// Indexed websites
+// #########################################################################
+
+// Source: https://www.worldwidewebsize.com/
+number_of_indexed_websites = 3B to 100B
+
+/*
+Very uncertain. Each 'website' is a full domain, so for example the English Wikipedia would count as a single website.
+500 words seems to be about the bare minimum for things like single-page corporate domains.
+*/
+average_words_per_website = 500 to 50000
+
+stock_of_words_indexed_web_log(t) = utils.psSum(utils.psLog(average_words_per_website,100), utils.psLog(number_of_indexed_websites,100), 50)*(1/Math.ln10)
+
+{
+    stock_indexed_web: stock_of_words_indexed_web_log
+}

@@ -1,0 +1,13 @@
+{
+  "name": "data_accumulation_models",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@quri/squiggle-lang": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.1"
+  }
+}

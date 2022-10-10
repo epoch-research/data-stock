@@ -1,0 +1,56 @@
+// #########################################################################
+// Total recorded human speech
+// #########################################################################
+
+/*
+Number of words spoken or written by an average person on an average day.
+This study (https://doi.org/10.1126/science.1139940) found an average of 
+~16000 words per day, with a standard deviation of 7300
+5000 words corresponds to talking at 150wpm for around half an hour.
+*/
+average_words_produced_per_day_per_person = (5000 to 20000)
+
+/*
+By 'recorded' I mean that is processed by any digital device that could potentially store it.
+An example of 'recorded' text that is usually not stored is a phone conversation.
+
+To reach the low end of 0.5%, a person would have to send at most a single text message for
+every 30m-long in-person conversation they have.
+
+While some very-online people or knowledge workers might communicate mostly digitally,
+for the average to surpass 50% would require most people to communicate mainly digitally,
+which is clearly not the case worldwide.
+*/
+percentage_of_words_that_is_recorded = truncateLeft(truncateRight(normal({p5: 0.005, p95:0.5}), 1), 1e-18)
+
+/*
+Multiply the production of words by the percentage that is recorded,
+then multiply by 365 and take the log.
+For efficiency, I take the log first and then sum.
+*/
+words_per_person_year_log = (log(365) + utils.psSum(
+    utils.psLog(average_words_produced_per_day_per_person, 50),
+    utils.psLog(percentage_of_words_that_is_recorded,50),
+    50))*(1/Math.ln10)
+
+
+/*
+We multiply the human population by a sigmoid to reflect the fact that before 1980
+there were almost no digital recordings.
+*/
+effective_population(t) = utils.human_pop(t) * utils.sigmoid(t, 1, 2000, 1/5, 0)
+
+/*
+Total person-years between 1950 and today
+*/
+total_person_years_log(t) = log(utils.numintegral(effective_population, 1950, t, 1))/Math.ln10
+
+/*
+Multiply total person-years by words per person-year.
+In log form, just sum them
+*/
+stock_log(t) = total_person_years_log(t) + words_per_person_year_log
+
+{
+    stock_recorded_words: stock_log
+}

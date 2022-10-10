@@ -1,0 +1,35 @@
+// #########################################################################
+// Common Crawl
+// #########################################################################
+
+/*
+Compressed size of the WET files in TB
+Source: https://commoncrawl.org/2022/07/june-july-2022-crawl-archive-now-available/
+Over the past 6 years this has been roughly constant
+*/
+commoncrawl_monthly_plaintext_size = 5 to 10
+
+/*
+Each monthly release states the share of new URLs. It's usually ~50%
+*/
+share_of_monthly_content_that_is_new = 0.3 to 0.70
+
+// Arcane lore
+compression_rate_for_plaintext = truncateRight(0.3 to 0.85,0.99)
+
+number_of_new_tb_of_uncompressed_text_per_year = 12*commoncrawl_monthly_plaintext_size*share_of_monthly_content_that_is_new/(1-compression_rate_for_plaintext)
+words_per_tb = 200B
+
+words_in_cc_per_year = PointSet.fromDist(truncateLeft(number_of_new_tb_of_uncompressed_text_per_year * words_per_tb, 1e-10))
+
+/*
+The size of the monthly releases has been stable over the past 6 years or so.
+So CC grows linearly
+*/
+stock_of_words_cc(t) = words_in_cc_per_year*max([1e-10,t-2016])
+
+stock_log(t) = utils.psLog(stock_of_words_cc(t), 100)*(1/Math.ln10)
+
+{
+    stock_cc: stock_log
+}

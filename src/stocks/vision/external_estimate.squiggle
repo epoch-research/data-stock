@@ -1,0 +1,15 @@
+// #########################################################################
+// External estimate
+// #########################################################################
+
+// Source: Rise Again Research
+number_of_images_2022 = 5e10 to 2e11
+
+// We assume the number of images is proportional to the person-years of internet users
+total_population_years(t) = utils.numintegral(utils.internet_pop_normalized_2022, 1950, t, 1)
+
+stock_of_images(t) = (utils.psLog(number_of_images_2022, 100) + log(total_population_years(t)))*(1/Math.ln10)
+
+{
+    stock_external_estimate: stock_of_images
+}

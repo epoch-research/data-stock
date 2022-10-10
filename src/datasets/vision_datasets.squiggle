@@ -1,0 +1,18 @@
+f = 12*log(2)/Math.ln10
+
+# Yearly growth. 5, 50 and 95 quantiles for two likely growth paths
+# In base 10 log
+low_growth_path = [f/34.2, f/39.9, f/48]
+high_growth_path = [f/7.7, f/9.6, f/31]
+mean_growth_path = [(low_growth_path[0]+high_growth_path[0])/2,
+                    (low_growth_path[1]+high_growth_path[1])/2,
+                    (low_growth_path[2]+high_growth_path[2])/2
+                ]
+
+current_largest_dataset = 3e9
+
+largest_dataset(t) = utils.toPsPrecision(log(current_largest_dataset)/Math.ln10 + (t-2022 + 1e-1)*(normal({p5: mean_growth_path[2], p95: mean_growth_path[1]})),100)
+
+{
+    largest_dataset: largest_dataset
+}

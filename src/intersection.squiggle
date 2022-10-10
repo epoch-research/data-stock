@@ -1,0 +1,11 @@
+prob_surpass(t) = pdf(stock_of_data(t) / largest_dataset(t),1)
+
+s = largest_dataset(2022)
+#p = prob_surpass(2070)
+#p2 = prob_surpass(2023)
+
+xs = map(List.upTo(start*prec,end*prec), {|a| a/prec})
+
+intersection = PointSet.makeContinuous(map(xs, {|a| {x: a, y: prob_surpass(a)}}))
+
+intersection

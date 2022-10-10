@@ -1,0 +1,20 @@
+// #########################################################################
+// Total text uploaded to the internet
+// #########################################################################
+
+/*
+Sending <10 short text messages per day is already enough to surpass 10k words yearly.
+
+On the other extreme, professional writers are able to write full novels with ~100k words
+in less than a year, in addition to all their other communication. Writing one average-length
+blog post a week produces around 50k words a year
+*/
+text_produced_by_avg_internet_user_in_a_year = 10000 to 100000
+
+total_person_years(t) = utils.numintegral({|t| utils.human_pop(t)*utils.internet_penetration(t)}, 1950, t, 1)
+
+stock_log(t) = (utils.psLog(text_produced_by_avg_internet_user_in_a_year, 100) + log(total_person_years(t)))*(1/Math.ln10)
+
+{
+    stock_internet_words: stock_log
+}

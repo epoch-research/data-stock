@@ -1,0 +1,106 @@
+sigmoid(x, l, x0, k, b) = (l / (1 + exp(-k*(x-x0))) + b)
+
+/*
+Approximates the integral of a function on an interval
+Params:
+    a: left end of interval
+    b: right end of interval
+    f: function to integrate
+    prec: discretization precision (number of points between two consecutive integers)
+    r: random parameters for f (can be a distribution or a record)
+
+Note: the 'r' param can be used to ensure that random draws are consistent in each invocation of f
+within a single integration. Any distributions passed through this parameter should be in SampleSet format
+*/
+integral(a, b, f, prec, r) = reduce(map(
+    filter(List.upTo(prec*a, max([prec*a, prec*b])), {|x| x > prec*a}),
+    {|x| f(x/prec, r)/prec}),
+    0 to 1e-10, {|acc, val| acc+val})
+
+bounded(ini,fin,a,b,prec) = normalize(PointSet.makeContinuous(map(List.upTo(ini*prec, fin*prec), {|x| {x: x/prec, y: (cdf(a,x/prec)*(1-cdf(b,x/prec)))}})))
+
+// World population from 1950 to 2100, from OWID
+human_pop_table = [2536605808,2584034223,2630861688,2677609059,2724846751,2773019915,2822443253,2873306055,2925686678,2979576143,3035160180,3091843506,3150420759,3211000941,3273978271,3339583509,3407922630,3478770102,3551599432,3625680964,3700685676,3775760030,3851650585,3927780518,4003794178,4079480473,4154666824,4229505917,4304533597,4380506180,4458274952,4536996616,4617386524,4699569184,4784011512,4870921665,4960567998,5052521994,5145425992,5237441433,5327529078,5414289382,5498919891,5581597596,5663150426,5744212929,5824891927,5905045647,5984794072,6064239030,6143776621,6222912459,6302062210,6381477292,6461454653,6542205330,6623819401,6706251239,6789396380,6873077808,6957137521,7041509491,7126144677,7210900157,7295610265,7380117870,7464344232,7548182589,7631091110,7713468203,7794798725,7874965730,7953952572,8031800338,8108605253,8184437453,8259276649,8333078315,8405863296,8477660720,8548487367,8618349452,8687227871,8755083512,8821862703,8887524228,8952048883,9015437614,9077693643,9138828561,9198847382,9257745483,9315508153,9372118246,9427555381,9481803269,9534854671,9586707748,9637357320,9686800144,9735033898,9782061757,9827885441,9872501561,9915905250,9958098746,9999085167,10038881262,10077518080,10115036358,10151469682,10186837206,10221149040,10254419002,10286658352,10317879312,10348098076,10377330829,10405590529,10432889134,10459239499,10484654857,10509150399,10532742861,10555450002,10577288193,10598274168,10618420909,10637736818,10656228231,10673904453,10690773333,10706852426,10722171373,10736765441,10750662352,10763874021,10776402016,10788248944,10799413362,10809892301,10819682642,10828780958,10837182075,10844878796,10851860143,10858111582,10863614774,10868347632,10872284132,10875393716]
+
+human_pop(t) = human_pop_table[t-1950]
+
+// Fitted sigmoid to OWID data (https://ourworldindata.org/grapher/share-of-individuals-using-the-internet)
+internet_penetration(t) = sigmoid(t, 0.7286, 2011.6, 0.16, 0)
+
+internet_pop_normalized_2022(t) = human_pop(t) * internet_penetration(t) / (human_pop(2022) * internet_penetration(2022))
+
+getQuantiles(f, a, b, qprec, prec) = map(List.upTo(0,qprec), {|q| cumsum(map(List.upTo(prec*a,prec*b), {|t| quantile(f(t/prec),q/qprec)/prec })) })
+pointSetFromQuantiles(quantiles,prec) = map(List.upTo(1,prec-1), {|i| {x: quantiles[i], y: 2/(quantiles[i+1] - quantiles[i-1])} }) |> PointSet.makeContinuous |> normalize
+
+integral2(quantiles, a0, b0, a, b, qprec, prec) = pointSetFromQuantiles(map(quantiles, {|q| q[(b-a0)*prec] - q[(a-a0)*prec]}), qprec)
+
+numintegral(f, a, b, prec) = reduce(map(
+    filter(List.upTo(prec*a, max([prec*a, prec*b])), {|x| x > prec*a}),
+    {|x| f(x/prec)/prec}),
+    0, {|acc, val| acc+val})
+
+
+
+computeLimits(d, prec) = {d:d, prec:prec, low: log(quantile(d,0.001)), high: log(quantile(d,0.999))}
+feedLimits(in) = computeLimits(in['d'], in['prec'])
+
+computeLimitsSum(d, prec) = {d:d, prec:prec, low: quantile(d,0.001), high: quantile(d,0.999)}
+feedLimitsSum(in) = computeLimitsSum(in['d'], in['prec'])
+
+computeScaling(d, prec, low, high) = {d:d, prec:prec, low:low, high:high, scale: prec/(high-low)}
+feedScaling(in) = computeScaling(in['d'], in['prec'], in['low'], in['high'])
+
+computeLog(d, low, high, scale) = map(List.upTo(low*scale,high*scale),
+{|x| {x: x/scale, y: pdf(d,exp(x/scale))*(exp(x/scale))}}) |> PointSet.makeContinuous |> normalize
+feedLog(in) = computeLog(in['d'], in['low'], in['high'], in['scale'])
+
+psLog(d, prec) = computeLimits(d, prec) |> feedScaling |> feedLog
+
+psInv(d,prec) = map(reverse(List.upTo(1,prec)), {|x| {x: prec/x, y:pdf(d, x/prec)*(x/prec)^2}}) |> PointSet.makeContinuous
+
+computeSum(d1, d2, low1, low2, high1, high2, scale1, scale2, scale) = map(List.upTo((low1+low2)*scale,(high1+high2)*scale),
+{|x| {x: x/scale, y: sum(map(List.upTo(low2*scale2,high2*scale2), {|y| pdf(d2,y/scale2)*pdf(d1,x/scale-y/scale2) } ))  }}) |> PointSet.makeContinuous |> normalize
+
+feedSum(in1, in2) = computeSum(in1['d'], in2['d'], in1['low'], in2['low'], in1['high'], in2['high'], in1['scale'], in2['scale'], in1['prec']/(-in1['low']-in2['low']+in1['high']+in2['high']))
+feedFeedSum(in) = feedSum(in['in1'], in['in2'])
+
+psSum(d1, d2, prec) = {in1: (computeLimitsSum(d1, prec) |> feedScaling), in2: (computeLimitsSum(d2, prec) |> feedScaling)} |> feedFeedSum
+
+computeLimitsExp(d, prec) = {d:d, prec:prec, low: exp(quantile(d,0.001)), high: exp(quantile(d,0.999))}
+feedLimitsExp(in) = computeLimitsExp(in['d'], in['prec'])
+
+computeExp(d, low, high, scale) = map(List.upTo(low*scale,high*scale),
+{|x| {x: x/scale, y: pdf(d,log(x/scale))/x*scale }}) |> PointSet.makeContinuous |> normalize
+feedExp(in) = computeExp(in['d'], in['low'], in['high'], in['scale'])
+
+psExp(d, prec) = computeLimitsExp(d, prec) |> feedScaling |> feedExp
+
+unifmix(a,b,prec) = map(List.upTo(quantile(a,0.01)*prec, quantile(b,0.99)*prec), {|x| {x:x/prec, y:cdf(a,x/prec)*(1-cdf(b,x/prec))}}) |> PointSet.makeContinuous |> normalize
+
+std_(f, u, a, b, prec) = sum(map(List.upTo(a*prec, b*prec), {|x| pdf(f, x/prec)*((x/prec-u)^2)/prec}))^(1/2)
+std(f, prec) = std_(f, mean(f), quantile(f, 1/prec), quantile(f,1-1/prec), prec)
+
+toPsPrecision_(d, low, high, scale) = map(List.upTo(low*scale,high*scale),
+{|x| {x: x/scale, y: pdf(d,x/scale) }}) |> PointSet.makeContinuous |> normalize
+feedToPsPrecision(in) = toPsPrecision_(in['d'], in['low'], in['high'], in['scale'])
+toPsPrecision(d,prec) = computeLimitsSum(d, prec) |> feedScaling |> feedToPsPrecision
+
+
+utils = {
+    sigmoid: sigmoid,
+    integral: integral,
+    numintegral: numintegral,
+    getQuantiles: getQuantiles,
+    integral2: integral2,
+    bounded: bounded,
+    human_pop: human_pop,
+    internet_penetration: internet_penetration,
+    internet_pop_normalized_2022: internet_pop_normalized_2022,
+    psLog: psLog,
+    psExp: psExp,
+    psSum: psSum,
+    psInv: psInv,
+    toPsPrecision: toPsPrecision,
+    unifmix: unifmix,
+    std: std
+}

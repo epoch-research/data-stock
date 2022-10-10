@@ -1,0 +1,99 @@
+annual_economic_growth = 1.02 to 1.06
+
+// #########################################################################
+// GitHub
+// #########################################################################
+
+// In 2020, GitHub archived 21TB of public repositories in the Arctic Vault
+// (https://github.blog/2020-07-16-github-archive-program-the-journey-of-the-worlds-open-source-code-to-the-arctic/))
+// Software Heritage has archived 13B source code files (https://archive.softwareheritage.org/).
+// Assuming each of them is 5KB (average for GitHub, this can be seen from The Pile and MassiveText (Gopher paper)).
+// This gives 65TB of code.
+size_of_github_tb_2022 = 21 to 65
+
+// The size of a git repository includes all the blobs used for storing the history of the repo.
+// This storage overhead ranges from ~100% for a 1-year-old repo with <100 commits up to 600% for
+// a very old repository like the Linux kernel.
+// In the MassiveText dataset, the overhead is 3.1TB / 844GB - 1 = 267%. This means that approximately
+// 1/4 of the size is actual source code
+git_overhead_factor = 0.05 to 0.5
+
+size_of_source_code_in_github_tb_2022 = size_of_github_tb_2022 * git_overhead_factor
+
+// This is a bit nonsensical, but to compare with natural language text where average word size is 5,
+// we assume each TB has 200B "words".
+// Using tokens would be even worse, since code tokenization usually has a compression rate of around 50%,
+// compared to ~80% for natural text.
+number_of_words_github_2022 = size_of_source_code_in_github_tb_2022 * 200e9
+
+// #########################################################################
+// Papers
+// #########################################################################
+
+// "Our estimates show that at least 114 million English-language scholarly documents are accessible on the web,
+// of which Google Scholar has nearly 100 million". From this paper published in 2014.
+// https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0093949
+// The Web Of Science lists 82M papers in total and it listed ~55M published before 2014. Assuming the coverage of
+// WoS is constant over time, the total number of papers has increased by 50% since then (yearly growth of 4.5%)
+// which means today there are 114M*1.5 = 170M papers
+number_published_papers_2022 = 100M to 170M
+
+// From the Pile paper. Mean document length is 30KB, so 30*200 words
+average_paper_length = 30*200
+
+number_of_words_papers_2022 = number_published_papers_2022 * average_paper_length
+
+// #########################################################################
+// Books
+// #########################################################################
+
+// 1M books were published yearly in 1996
+// (https://www2.sims.berkeley.edu/research/projects/how-much-info/how-much-info.pdf#%5B%7B%22num%22%3A100%2C%22gen%22%3A0%7D%2C%7B%22name%22%3A%22XYZ%22%7D%2C0%2C792%2Cnull%5D))
+// At 4% yearly growth, for 25 years, this is 2.5M published today. But I don't trust this estimate too much.
+// Other unreliable Internet sources claim between 500k and 4M
+books_published_in_2022 = 1M to 3M
+
+// Quite uncertain about this. E-book sales are around 10% those of print books
+// (https://www.cnbc.com/2019/09/19/physical-books-still-outsell-e-books-and-heres-why.html)
+// so this seems like a reasonable guess
+// In addition, this source https://justpublishingadvice.com/how-many-kindle-ebooks-are-there estimated that there
+// were 3.4M ebooks and 48.5M print books in Amazon a few years ago
+fraction_of_books_digitized = 0.02 to 0.2
+
+digital_books_published_2022 = books_published_in_2022 * fraction_of_books_digitized
+
+// Assuming book publications grow exponentially at economic growth rates, the stock of books is proportional
+// to the publication rate
+stock_of_digital_books_2022_indirect_estimate = digital_books_published_2022 / log(annual_economic_growth)
+
+// Another independent estimate. There are ~12M ebooks in Amazon kindle.
+// From https://justpublishingadvice.com/how-many-kindle-ebooks-are-there/#2022_Update_and_new_methodology
+// The Internet Archive has 20M books and texts in its digital library. https://archive.org/details/texts
+stock_of_digital_books_2022_direct_estimate = 10M to 30M
+
+stock_of_digital_books_2022 = (stock_of_digital_books_2022_direct_estimate + stock_of_digital_books_2022_indirect_estimate) / 2
+
+words_per_book = 100k
+
+number_of_words_books_2022 = stock_of_digital_books_2022 * words_per_book
+
+
+// #########################################################################
+// Total
+// #########################################################################
+
+total_words_2022 = PointSet.fromDist(number_of_words_github_2022 + number_of_words_papers_2022 + number_of_words_books_2022)
+
+fraction_of_hq_data_represented = 0.3 to 0.5
+
+size_2022 = utils.psSum(utils.psLog(total_words_2022,100),
+    -utils.psLog(fraction_of_hq_data_represented,100),
+    50)
+
+stock_of_words(t) = utils.psSum(size_2022,
+    utils.psLog(annual_economic_growth,100)*(t-2022.01),
+ 50) * (1/Math.ln10)
+
+{
+    stock_of_data: stock_of_words
+}
