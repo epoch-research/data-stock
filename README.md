@@ -2,7 +2,7 @@
 
 This repository contains some probabilistic models in Squiggle, together with some JS code to run the models, especially computing the aggregated models and the intersection years, which are quite heavy.
 
-Below is a summary of the models with links to the Squiggle playgrond. To view the model demos in the playground, open the link, click "View settings", scroll to "Function Display Settings" and set the min and max X value to 2022 and 2080, respectively. Some of them might take a few seconds to load.
+Below is a summary of the models with links to the Squiggle playground. To view the model demos in the playground, open the link, click "View settings", scroll to "Function Display Settings" and set the min and max X value to 2022 and 2080, respectively. Some of them might take a few seconds to load.
 
 ## Language data
 
