@@ -15,7 +15,11 @@ external_estimate_weight = 0.3
 #    SampleSet.fromDist(uniform(0,1))
 #    )
 
-stock_of_imgs(t) = utils.unifmix(stock_external_estimate(t)-0.2, stock_popular_platforms(t)+0.4, 100)
+#stock_of_imgs(t) = utils.unifmix(stock_external_estimate(t)-0.2, stock_popular_platforms(t)+0.4, 100)
+mix(t) = mixture(stock_popular_platforms(t), stock_external_estimate(t),
+    [popular_platforms_weight, external_estimate_weight])
+
+stock_of_imgs(t) = PointSet.fromDist(normal({p5:quantile(mix(t),0.05), p95:quantile(mix(t),0.95)}))
 
 {
     stock_of_data: stock_of_imgs

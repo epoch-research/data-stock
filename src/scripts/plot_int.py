@@ -3,11 +3,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 plt.rcParams["figure.dpi"] = 150
+plt.rcParams.update({'font.size': 14})
 
-domain = ["lang", "lang_hq"]
+domain = ["lang", "lang_hq", "vision"]
 growth = ["hist", "comp"]
 params = {"lang": {"comp": (2022,2060,10,50), "hist": (2023,2080,5,10)},
-         "lang_hq": {"comp": (2022,2030,10,10), "hist": (2022,2030,50,50)}}
+         "lang_hq": {"comp": (2022,2030,10,10), "hist": (2022,2030,20,20)},
+         "vision": {"comp": (2022,2070,5,20), "hist": (2022,2070,5,20)}}
 
 def rollavg(l, w):
     a = []
@@ -42,9 +44,9 @@ quantiles = {k:[
     shapes[k]['xs'][np.searchsorted(v, 0.95)]] for k,v in ints.items()}
 print(quantiles)
 
-fig, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize=(10,10))
+fig, ((ax1,ax2),(ax3,ax4),(ax5,ax6)) = plt.subplots(3,2, figsize=(8,8))
 
-ax1.set_ylabel("Low-quality stock")
+ax1.set_ylabel("Low-quality\nlanguage stock")
 
 ax1.plot(shapes['lang_hist']['xs'], shapes['lang_hist']['ys'])
 ax1.set_xlim(2022, 2060)
@@ -52,22 +54,32 @@ ax1.set_xlim(2022, 2060)
 ax2.plot(shapes['lang_comp']['xs'], shapes['lang_comp']['ys'])
 ax2.set_xlim(2022, 2060)
 
-ax3.set_ylabel("High-quality stock")
+ax3.set_ylabel("High-quality\nlanguage stock")
 
 ax3.plot(shapes['lang_hq_hist']['xs'], shapes['lang_hq_hist']['ys'])
 ax3.set_xlim(2022, 2030)
 
-ax3.set_xlabel("Historical projection")
-
 ax4.plot(shapes['lang_hq_comp']['xs'], shapes['lang_hq_comp']['ys'])
 ax4.set_xlim(2022, 2030)
 
-ax4.set_xlabel("Compute projection")
+ax5.set_ylabel("Vision stock")
+
+ax5.plot(shapes['vision_hist']['xs'], shapes['vision_hist']['ys'])
+ax5.set_xlim(2022, 2070)
+
+ax6.plot(shapes['vision_comp']['xs'], shapes['vision_comp']['ys'])
+ax6.set_xlim(2022, 2070)
+
+ax5.set_xlabel("Historical projection")
+ax6.set_xlabel("Compute projection")
 
 ax1.set_yticks(ticks=[])
 ax2.set_yticks(ticks=[])
 ax3.set_yticks(ticks=[])
 ax4.set_yticks(ticks=[])
+ax5.set_yticks(ticks=[])
+ax6.set_yticks(ticks=[])
 
-fig.suptitle('Distribution of exhaustion dates')
+plt.tight_layout()
+plt.savefig('intersections.png', dpi=500, format='png')
 plt.show()

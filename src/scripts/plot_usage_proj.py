@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 plt.rcParams["figure.dpi"] = 130
 plt.rcParams.update({'font.size': 13})
 
-STOCK = 'hq' # hq | s | v
+STOCK = 's' # hq | s | v
 
 ini = {'s': 1951, 'hq': 2022, 'v': 1951}[STOCK]
 fin = {'s': 2100, 'hq': 2030, 'v': 2100}[STOCK]
@@ -24,17 +24,9 @@ comp_transform = {'s': comp_transform_lang, 'hq': comp_transform_lang, 'v': comp
 
 data = dict()
 if STOCK == 'v':
-    with open(f'projections/stocks/vision/aggregation_{prec}_{prec}_{ini}_{fin}_{step}.pointset') as f:
-        data['v'] = json.load(f)
     with open(f'projections/datasets/vision_datasets_{prec}_{prec}_{ini}_{fin}_{step}.pointset') as f:
         data['hist'] = json.load(f)
 else:
-    if STOCK == 's':
-        with open(f'projections/stocks/lang/aggregation_{prec}_{prec}_{ini}_{fin}_{step}.pointset') as f:
-            data['s'] = json.load(f)
-    elif STOCK == 'hq':
-        with open(f'projections/stocks/lang/high_quality_{prec}_{prec}_{ini}_{fin}_{step}.pointset') as f:
-            data['hq'] = json.load(f)
     with open(f'projections/datasets/language_datasets_{prec}_{prec}_{ini}_{fin}_{step}.pointset') as f:
         data['hist'] = json.load(f)
 
@@ -104,9 +96,9 @@ for stock in [STOCK]:
     for demand in ['comp','hist']:
         print(stock,demand)
         quantiles = []
-        for qstock in data2[stock]:
-            for qdemand in data2[demand]:
-                quantiles.append([min(x,y) for x,y in zip(qdemand, qstock)])
+        #for qstock in data2[stock]:
+        for qdemand in data2[demand]:
+            quantiles.append(qdemand)
 
         data3[stock+'_'+demand] = list(zip(*[np.quantile(x,np.linspace(0.05,0.95,10)) for x in zip(*quantiles)]))
     
@@ -135,24 +127,10 @@ for k,v in data3.items():
     ax.fill_between(xs, v[0], v[-1], alpha=0.1*alpha_correction, color=colors[k])
     ax.plot(xs, [(a+b)/2 for a,b in zip(v[4],v[5])], color=colors[k], label=labels[k])
 
-ax.plot(xs, data2[STOCK][5], color='black', linestyle=(0, (1,10)), label='Stock of data (90% CI)')
-ax.plot(xs, data2[STOCK][95], color='black', linestyle=(0, (1,10)))
-ax.plot(xs, data2[STOCK][50], color='black', linestyle='dotted', label='Stock of data (median)')
-
-median_hist = {'s': 2032.4, 'hq': 2024.5, 'v': 2046}[STOCK]
-median_comp = {'s': 2040.5, 'hq': 2024.1, 'v': 2038.8}[STOCK]
-text_adj_hist = {'s': 0.1, 'hq': 0.1, 'v': 0.2}[STOCK]
-text_adj_comp = {'s': 0.1, 'hq': -1.2, 'v': -11}[STOCK]
 min_y = {'s': 1e12, 'hq': 3e12, 'v':1e9}[STOCK]
 max_y = {'s': 1e19, 'hq': 3e13, 'v':1e15}[STOCK]
 min_x = {'s': 2022, 'hq': 2022, 'v':2022}[STOCK]
-max_x = {'s': 2050, 'hq': 2026, 'v':2060}[STOCK]
-
-ax.axvline(median_hist, color='red', linestyle = 'dashed', linewidth=0.8)
-ax.text(median_hist+text_adj_hist,min_y*1.1, "Median date\ndata is exhausted\n(trend extr.)", color='red')
-
-ax.axvline(median_comp, color='blue', linestyle = 'dashed', linewidth=0.8)
-ax.text(median_comp+text_adj_comp, min_y*1.1, "Median date\ndata is exhausted\n(compute extr.)", color='blue')
+max_x = {'s': 2080, 'hq': 2026, 'v':2060}[STOCK]
 
 ax.legend(loc="upper left")
 
@@ -160,12 +138,13 @@ ax.set_xlabel('Year')
 ax.set_ylabel(f'Number of {"images" if STOCK == "v" else "words"} (log)')
 ax.grid(True, which="major", ls="-")
 ax.set_yscale('log')
-ax.set_ylim(min_y, max_y)
+#ax.set_ylim(min_y, max_y)
 ax.set_xlim(min_x, max_x)
 if(STOCK == 'hq'):
     ax.set_xticks(list(range(2022,2027)))
 
 plt.tight_layout()
-plt.savefig({'s': 'lang_proj_lq.png', 'hq': 'lang_proj_hq.png', 'v':'vision_proj.png'}[STOCK],
-    dpi=500, format='png', bbox_inches='tight', transparent=True, pad_inches=0)
+#plt.savefig({'s': 'lang_proj_lq.png', 'hq': 'lang_proj_hq.png', 'v':'vision_proj.png'}[STOCK],
+#    dpi=500, format='png', bbox_inches='tight', transparent=True, pad_inches=0)
 plt.show()
+

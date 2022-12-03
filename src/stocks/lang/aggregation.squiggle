@@ -12,19 +12,22 @@ indexed_websites_weight = 0
 uniform_bounds(t) = utils.unifmix(stock_cc(t), stock_recorded_words(t), 100)
 
 // A mixture model of each of the point estimates together with the uniform
-mix(t) = utils.toPsPrecision(mixture(stock_internet_words(t), stock_popular_platforms(t), stock_cc(t), uniform_bounds(t),
-                [total_internet_weight, popular_platforms_weight, common_crawl_weight, uniform_bounds_weight]),100)
+#mix(t) = utils.toPsPrecision(mixture(stock_internet_words(t), stock_popular_platforms(t), stock_cc(t), uniform_bounds(t),
+#                [total_internet_weight, popular_platforms_weight, common_crawl_weight, uniform_bounds_weight]),100)
+
+mix(t) = utils.toPsPrecision(mixture(stock_internet_words(t), stock_popular_platforms(t), stock_cc(t), stock_recorded_words(t),
+                [total_internet_weight, popular_platforms_weight, common_crawl_weight, 1]),100)
 
 // Since the mixture model has narrow peaks, we fit a beta distribution to smooth it using the method of moments.
-#mn(t) = mean(mix(t))
-#st(t) = utils.std(mix(t), 1000)
-#lo(t) = quantile(mix(t), 0.001)
-#up(t) = quantile(mix(t), 0.999)
-#
-#normalized_mn(t) = (mn(t)-lo(t))/(up(t)-lo(t))
-#normalized_st(t) = st(t)/(up(t)-lo(t))
-#
-#aggregate(t) = beta({mean: normalized_mn(t), stdev: normalized_st(t)})*(up(t)-lo(t)) + lo(t)
+mn(t) = mean(mix(t))
+st(t) = utils.std(mix(t), 1000)
+lo(t) = quantile(mix(t), 0.001)
+up(t) = quantile(mix(t), 0.999)
+
+normalized_mn(t) = (mn(t)-lo(t))/(up(t)-lo(t))
+normalized_st(t) = st(t)/(up(t)-lo(t))
+
+aggregate(t) = beta({mean: normalized_mn(t), stdev: normalized_st(t)})*(up(t)-lo(t)) + lo(t)
 
 {
     stock_of_data: mix

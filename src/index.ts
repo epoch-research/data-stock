@@ -19,9 +19,9 @@ type TaggedFunction = tagged<"lambda", lambdaValue>;
 
 const PRECISION = 1000;
 const QPREC = 50;
-const YEAR_START = 1951;
-const YEAR_END = 2100;
-const YEAR_INCREMENTS = 1;
+const YEAR_START = 2022;
+const YEAR_END = 2030;
+const YEAR_INCREMENTS = 0.1;
 
 function checkFileExistsSync(filepath) {
   let flag = true;
@@ -52,8 +52,8 @@ function evaluateAt(
   //}
   let { xs, ys } = dist.t.value.value.xyShape;
   return {
-    xs: xs.map((x) => x.toPrecision(5)),
-    ys: ys.map((y) => y.toPrecision(5)),
+    xs: xs.map((x) => x.toPrecision(7)),
+    ys: ys.map((y) => y.toPrecision(7)),
   };
 }
 
@@ -79,8 +79,8 @@ async function loadComputeProjection(bindings, domain: "lang" | "vision") {
   let newBindings = runPartial(
     `
     compute_table = ${JSON.stringify(compute).replace(/"/g, "")}
-    compute_dists = map(List.upTo(2022,2080), {|y| PointSet.fromDist(SampleSet.fromList(compute_table[y-2022]))})
-    compute(t) = compute_dists[min([t-2022,58])]
+    compute_dists = map(List.upTo(2022,2030), {|y| PointSet.fromDist(SampleSet.fromList(compute_table[y-2022]))})
+    compute(t) = compute_dists[min([t-2022,8])] 
     ${
       domain === "lang"
         ? `
@@ -109,11 +109,7 @@ async function loadComputeProjection(bindings, domain: "lang" | "vision") {
   let fun = res.value as unknown as TaggedFunction;
   let cache = [];
   console.log("Creating cache...");
-  for (
-    let y = 2022; // YEAR_START;
-    y <= 2080; // YEAR_END;
-    y += YEAR_INCREMENTS
-  ) {
+  for (let y = YEAR_START; y <= YEAR_END; y += YEAR_INCREMENTS) {
     console.log((100 * (y - YEAR_START)) / (YEAR_END - YEAR_START), "%");
     cache.push(evaluateAt(fun, y, PRECISION));
   }
@@ -394,18 +390,18 @@ async function computeDatasetGrowthModels(
 //computeDataStockModels(["ex", "ipp", "iagg"]);
 //computeDatasetGrowthModels(["lang"], "comp", null);
 computeDataStockModels([
-  /*"rw",
-  "iw",
-  "iu",
-  "cc",
-  "wpp",*/
+  //"rw",
+  //"iw",
+  //"iu",
+  //"cc",
+  //"wpp",
   //"wagg",
-  //  /*"ipp",
-  //  "ex",*/
-  "iagg",
-  //"hq",
+  //"ipp",
+  //"ex",
+  //"iagg",
+  "hq",
 ]).then((bindings) => {
-  computeDatasetGrowthModels(["vision"], "comp", bindings).then((bindings) => {
-    plotIntersection(bindings, "vision", "comp", 2022, 2070, 5);
+  computeDatasetGrowthModels(["lang"], "hist", bindings).then((bindings) => {
+    plotIntersection(bindings, "lang_hq", "hist", 2022, 2030, 20);
   });
 });
