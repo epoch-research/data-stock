@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 plt.rcParams["figure.dpi"] = 130
 plt.rcParams.update({'font.size': 14})
 
-PLOT = 'lq' # lq | hq | v
+PLOT = 'v' # lq | hq | v
 
 ini = {'lq': 1951, 'hq': 1951, 'v': 1951}[PLOT]
 fin = {'lq': 2100, 'hq': 2100, 'v': 2100}[PLOT]
