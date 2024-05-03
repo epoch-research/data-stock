@@ -1,7 +1,7 @@
 from utils import *
+from dataset_size_projections import *
 from indexed_web import *
-
-
+from internet_users import *
 
 def quality_adjust(x):
     # From the RefinedWeb paper, about 25% of the English data can be used
@@ -72,7 +72,7 @@ plt.grid('major', color='#F2F6F6', zorder=0)
 plt.setp(ax.spines.values(), color='#CCD8D9')
 plt.tick_params(axis='both', which='both', color='#CCD8D9')
 plt.tight_layout()
-fig.savefig('stocks.pdf')
+fig.savefig('results/stocks.pdf')
 plt.show()
 
 print(f"""\
@@ -252,7 +252,7 @@ plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
 plt.margins(0,0)
 #plt.gca().xaxis.set_major_locator(plt.NullLocator())
 #plt.gca().yaxis.set_major_locator(plt.NullLocator())
-plt.savefig('projections.pdf', bbox_inches = 'tight', pad_inches=0)
+plt.savefig('results/projections.pdf', bbox_inches = 'tight', pad_inches=0)
 plt.show()
 
 fig = plt.figure(figsize=(5,5))
@@ -378,5 +378,5 @@ plt.tight_layout()
 plt.margins(0,0)
 plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
             hspace = 0.0, wspace = 0)
-fig.savefig('exhaustion_date.pdf', bbox_inches = 'tight', pad_inches=0)
+fig.savefig('results/exhaustion_date.pdf', bbox_inches = 'tight', pad_inches=0)
 plt.show()

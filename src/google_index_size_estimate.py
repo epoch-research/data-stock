@@ -1,6 +1,6 @@
 from utils import *
 
-df = pd.read_csv('google_pivot_words.csv')
+df = pd.read_csv('data/google_pivot_words.csv')
 for c in df.columns[1:-1]:
     df[c] = df['count']/(df[c]*0.45)
 
@@ -12,6 +12,6 @@ plt.ylabel('Count')
 plt.setp(ax.spines.values(), color='#CCD8D9')
 plt.tick_params(axis='both', which='both', color='#CCD8D9')
 plt.tight_layout()
-plt.savefig('histogram.pdf', bbox_inches = 'tight', pad_inches=0)
+plt.savefig('results/histogram.pdf', bbox_inches = 'tight', pad_inches=0)
 plt.show()
 
