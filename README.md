@@ -17,4 +17,4 @@ Then, execute any script you want with
 docker exec your-container-name python src/script_name.py
 ```
 
-The plots will be saved in the `results` directory.
+The plots will be saved in the `results` directory. To generate all the plots in the main body of the paper, run `stock_adjust.py`.
