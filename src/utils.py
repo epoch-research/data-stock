@@ -52,6 +52,29 @@ extended_colors = [
   '#FF975C',
 ]
 
+
+model_fill_color = '#9BBFC1'
+model_fill_alpha = 0.8
+
+data_stock_color = '#00A5A6'
+data_stock_ci_alpha = 0.15
+
+compute_projection_color = data_stock_color
+compute_projection_ci_alpha = data_stock_ci_alpha
+
+dataset_size_color = '#1F6EE5'
+dataset_size_ci_alpha = 0.15
+
+historical_projection_color = dataset_size_color
+historical_projection_ci_alpha = dataset_size_ci_alpha
+
+primary_usage_date_color = '#E03D90'
+secondary_usage_date_color = '#6A3ECB'
+
+human_pop_color = '#00A5A6'
+internet_users_real_color = '#FFB23C'
+internet_users_fit_color = '#1F6EE5'
+
 title_props = {
     #'fontname': 'serif',
     'pad': 8,
