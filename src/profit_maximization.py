@@ -1,4 +1,4 @@
-from util import *
+from utils import *
 import torch
 
 A = 514
@@ -127,11 +127,13 @@ def get_optimal_policies():
     ns2, ds2, ps2 = optimal_scaling(C, I0=1e15, r=7, h=2)
     ns3, ds3, ps3 = optimal_scaling(C, I0=1e16, r=10, h=2.4)
 
-    return ns1, ds1, ps1, ns2, ds2, ps2, ns3, ds3, ps3
+    return C, ns1, ds1, ps1, ns2, ds2, ps2, ns3, ds3, ps3
 
 if __name__ == '__main__':
     max_data = 1e14
     max_compute = 5e25
+
+    C, ns1, ds1, ps1, ns2, ds2, ps2, ns3, ds3, ps3 = get_optimal_policies()
 
     fig = plt.figure(figsize=(5,6))
     ax1, ax2 = fig.subplots(2, sharex=True)

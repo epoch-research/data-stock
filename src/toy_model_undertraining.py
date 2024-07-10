@@ -61,5 +61,5 @@ if __name__ == '__main__':
     plt.tick_params(axis='both', which='both', color='#CCD8D9')
     plt.tight_layout()
     plt.margins(0,0.015)
-    fig.savefig('results/toy_model_undertraining.jpg', bbox_inches = 'tight', pad_inches=0)
+    fig.savefig('results/toy_model_undertraining.pdf', bbox_inches = 'tight', pad_inches=0)
     plt.show()

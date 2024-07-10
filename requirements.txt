@@ -2,3 +2,4 @@ squigglepy==0.27
 matplotlib==3.7.1
 numpy==1.25.2
 pandas==2.0.3
+torch==2.3.0

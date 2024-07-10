@@ -86,3 +86,9 @@ top_x_label_props = {
 
 color_data = colors[0]
 color_comp = colors[3]
+
+
+def hex_to_rgba(hex, alpha=1.0):
+    hex = hex.lstrip('#')
+    h_len = len(hex)
+    return tuple(int(hex[i:i + h_len // 3], 16) / 255 for i in range(0, h_len, h_len // 3)) + (alpha,)

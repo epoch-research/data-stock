@@ -3,7 +3,7 @@
 from utils import *
 from math import floor, ceil
 
-def get_dataset_size_projection():
+def get_dataset_size_projections():
     df = pd.read_csv('data/dataset_sizes.csv')
     df.date = df.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
     df = df[df.date > dt.datetime(2010, 1, 1)]
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     df = df[df.date > dt.datetime(2010, 1, 1)]
     df.dataset = df.dataset * 4 / 5 # convert to tokens
 
-    dataset_size, dataset_size_hist, dataset_size_comp = get_dataset_size()
+    dataset_size, dataset_size_hist, dataset_size_comp = get_dataset_size_projections()
 
     fig = plt.figure(figsize=(5,3))
     ax = fig.subplots(1)
@@ -131,5 +131,5 @@ if __name__ == '__main__':
     plt.tick_params(axis='both', which='both', color='#CCD8D9')
     plt.tight_layout()
     plt.margins(0,0)
-    fig.savefig('dataset_sizes.pdf', bbox_inches = 'tight', pad_inches=0)
+    fig.savefig('results/dataset_sizes.pdf', bbox_inches = 'tight', pad_inches=0)
     plt.show()
